@@ -1,0 +1,11 @@
+# WiFi: always brought up as the AP/hotspot's static IP. hostapd puts the
+# interface into AP mode; dnsmasq (see dnsmasq/wlan0.conf) serves DHCP leases
+# to clients that join it.
+[Match]
+Name=wlan0
+
+[Network]
+Address=192.168.7.1/24
+DHCP=no
+IPv6AcceptRA=no
+MulticastDNS=yes

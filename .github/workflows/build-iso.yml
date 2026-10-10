@@ -1,0 +1,47 @@
+name: Build Klipper installer ISO
+
+# Manual trigger only — click "Run workflow" in the Actions tab whenever
+# you want a fresh ISO. Each run generates new random credentials unless
+# you've set the PRINT_PASSWORD / WIFI_PASSPHRASE repo secrets below.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Build ISO
+        env:
+          # Optional: set any of these as repo secrets (Settings > Secrets
+          # and variables > Actions) to override the defaults. Unset ones
+          # fall back to setup.sh's own defaults (ap mode, mainsail, GB).
+          PRINT_PASSWORD: ${{ secrets.PRINT_PASSWORD }}
+          WIFI_PASSPHRASE: ${{ secrets.WIFI_PASSPHRASE }}
+          COUNTRY: ${{ secrets.COUNTRY }}
+          WIFI_MODE: ${{ secrets.WIFI_MODE }}
+          STATION_SSID: ${{ secrets.STATION_SSID }}
+          STATION_PASSWORD: ${{ secrets.STATION_PASSWORD }}
+          WEBUI: ${{ secrets.WEBUI }}
+          CROWSNEST: ${{ secrets.CROWSNEST }}
+          KLIPPLUG: ${{ secrets.KLIPPLUG }}
+          HOSTNAME_PREFIX: ${{ secrets.HOSTNAME_PREFIX }}
+        run: |
+          chmod +x setup.sh
+          ./setup.sh
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: klipper-wyse3040-installer-iso
+          path: klipper-wyse3040-installer.iso
+          retention-days: 14
+
+      - name: Upload credentials
+        uses: actions/upload-artifact@v4
+        with:
+          name: credentials
+          path: credentials.txt
+          retention-days: 14

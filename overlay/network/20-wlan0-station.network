@@ -1,0 +1,15 @@
+# WiFi in STATION mode (WIFI_MODE=station): wlan0 is a normal DHCP client
+# joining an existing router, instead of running its own hotspot. Installed
+# INSTEAD OF 20-wlan0.network (the AP's static-IP profile) — late-command.sh
+# picks exactly one of the two, never both.
+[Match]
+Name=wlan0
+
+[Network]
+DHCP=yes
+IPv6AcceptRA=no
+MulticastDNS=yes
+
+[DHCP]
+UseDNS=yes
+RouteMetric=200

@@ -1,0 +1,17 @@
+# Ethernet: works plugged into a router/switch (gets a normal DHCP lease)
+# AND works plugged directly into a PC with no DHCP server (falls back to
+# a 169.254.0.0/16 link-local address, which is what Windows/macOS/Linux
+# auto-assign themselves too, so the two sides can always find each other —
+# especially combined with avahi/mDNS advertising <hostname>.local).
+[Match]
+Name=eth0
+
+[Network]
+DHCP=yes
+LinkLocalAddressing=ipv4
+IPv6AcceptRA=no
+MulticastDNS=yes
+
+[DHCP]
+UseDNS=yes
+RouteMetric=100

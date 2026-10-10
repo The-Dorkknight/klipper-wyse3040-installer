@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wyse 3040 Klipper Injector</title>
+<meta name="description" content="Unattended Debian installer + GUI that turns a Dell Wyse 3040 thin client into a headless Klipper/Moonraker 3D-printer controller. Source-available, non-commercial.">
+<link rel="icon" href="images/favicon-64.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1f2933; --muted: #52606d;
+    --accent: #2c7a7b; --accent-dark: #1f5859; --border: #e4e4e1;
+    --warn-bg: #fff5f0; --warn-border: #dd6b20; --warn-ink: #7b341e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181b; --panel: #1c2227; --ink: #f0f2f4; --muted: #a0aec0;
+      --accent: #4fd1c5; --accent-dark: #38b2ac; --border: #2d3748;
+      --warn-bg: #2d1c10; --warn-border: #dd6b20; --warn-ink: #fbd38d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181b; --panel: #1c2227; --ink: #f0f2f4; --muted: #a0aec0;
+    --accent: #4fd1c5; --accent-dark: #38b2ac; --border: #2d3748;
+    --warn-bg: #2d1c10; --warn-border: #dd6b20; --warn-ink: #fbd38d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+  header.hero {
+    padding: 48px 0 32px; text-align: center;
+  }
+  header.hero img.icon {
+    width: 88px; height: 88px; border-radius: 20px; margin-bottom: 16px;
+  }
+  header.hero h1 { font-size: 2rem; margin: 0 0 8px; }
+  header.hero p.tag { color: var(--muted); font-size: 1.1rem; margin: 0 0 20px; }
+  .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+  .badge {
+    font-size: 0.8rem; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted);
+  }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 10px 20px; border-radius: 8px;
+    text-decoration: none; font-weight: 600; font-size: 0.95rem;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+
+  .wip {
+    background: var(--warn-bg); border: 1px solid var(--warn-border);
+    color: var(--warn-ink); border-radius: 10px; padding: 14px 18px;
+    margin: 0 0 32px; font-size: 0.95rem;
+  }
+  .wip strong { display: block; margin-bottom: 2px; }
+
+  .shot {
+    width: 100%; max-width: 640px; display: block; margin: 0 auto 40px;
+    border-radius: 12px; border: 1px solid var(--border);
+  }
+
+  section { margin: 48px 0; }
+  section h2 { font-size: 1.4rem; margin-bottom: 16px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 1rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+  ol.steps { padding-left: 20px; }
+  ol.steps li { margin-bottom: 10px; }
+  code, pre {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  code { padding: 2px 6px; font-size: 0.9em; }
+  pre { padding: 14px; overflow-x: auto; }
+  pre code { border: none; padding: 0; background: none; }
+
+  #hardware { display: none; }
+  #hardware .photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  #hardware img { width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+
+  footer {
+    border-top: 1px solid var(--border); margin-top: 56px; padding: 28px 0 48px;
+    color: var(--muted); font-size: 0.85rem; text-align: center;
+  }
+  footer a { color: var(--accent-dark); }
+  footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <img class="icon" src="images/icon-512.png" alt="">
+    <h1>Wyse 3040 Klipper Injector</h1>
+    <p class="tag">Turn a Dell Wyse 3040 thin client into a headless Klipper 3D-printer controller — point, click, boot.</p>
+    <div class="badges">
+      <span class="badge">Source-available · Non-commercial</span>
+      <span class="badge" id="version-badge">v0.2.0-wip</span>
+    </div>
+    <div class="cta">
+      <a class="btn primary" id="repo-link" href="#">View on GitHub</a>
+      <a class="btn secondary" id="releases-link" href="#">Downloads</a>
+    </div>
+  </header>
+
+  <div class="wip">
+    <strong>Work in progress</strong>
+    Not yet verified to boot real Wyse 3040 hardware end-to-end. Test in a VM first — see
+    <a id="readme-link" href="#">Known limitations</a> in the README.
+  </div>
+
+  <img class="shot" src="images/gui-build.webp" alt="Wyse 3040 Klipper Injector — Build ISO tab">
+
+  <section>
+    <h2>What it does</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Point-and-click build</h3>
+        <p>Set a password, hostname, WiFi settings and web UI in a GUI, and it builds a fully unattended Debian 12 installer ISO.</p>
+      </div>
+      <div class="card">
+        <h3>AP hotspot or station WiFi</h3>
+        <p>Broadcast its own hotspot by default, or join your existing router instead — your choice per build.</p>
+      </div>
+      <div class="card">
+        <h3>Mainsail or Fluidd</h3>
+        <p>Pick whichever web UI you prefer; Crowsnest webcam streaming and the experimental KlipPlug plugin manager are optional extras.</p>
+      </div>
+      <div class="card">
+        <h3>Ethernet always works</h3>
+        <p>DHCP with automatic link-local fallback, so it's reachable plugged straight into a PC or through a router.</p>
+      </div>
+      <div class="card">
+        <h3>Safe USB writing</h3>
+        <p>Only removable, correctly-sized drives are ever offered, with a two-step confirmation before anything is erased.</p>
+      </div>
+      <div class="card">
+        <h3>Boot diagnostics</h3>
+        <p>Every unit serves a plain-text diagnostics report at <code>/diagnostics.txt</code> a couple of minutes after boot.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Getting started</h2>
+    <ol class="steps">
+      <li>Clone or download the repo on a Linux PC (Debian/Ubuntu/Mint — or WSL2).</li>
+      <li>Double-click <code>WyseInjector-Linux.sh</code> — it finds Python 3 + Tkinter itself and says
+        what to install if either is missing. (On Windows or macOS, double-click
+        <code>WyseInjector-Windows.bat</code> or <code>WyseInjector-Mac.command</code> instead — this
+        tool needs real Linux disk tooling, so those walk you into WSL2 or a Linux VM.)</li>
+      <li>Agree to the disclaimer and fill in the Build tab.</li>
+      <li>Write the finished ISO to a USB stick (the app's own Write tab, or Balena Etcher).</li>
+      <li>Boot a Wyse 3040 from the stick, with ethernet plugged into a network with internet access.</li>
+      <li>Walk away — it's unattended and reboots into the finished appliance on its own.</li>
+    </ol>
+    <p>Prefer no local install at all? The repo's GitHub Actions workflow builds the ISO on GitHub's own runners — see the README.</p>
+  </section>
+
+  <section id="hardware">
+    <h2>Real hardware</h2>
+    <div class="photos">
+      <img data-src="images/unit.jpg" alt="A Wyse 3040 unit running this project">
+      <img data-src="images/unit-2.jpg" alt="A Wyse 3040 unit, another angle">
+      <img data-src="images/real-feed.jpg" alt="Mainsail/Fluidd running on a real unit">
+    </div>
+  </section>
+
+  <footer>
+    <p>Copyright © 2026 Matthew Armstrong. Licensed under the
+      <a id="licence-link" href="#">PolyForm Noncommercial License 1.0.0</a> —
+      source-available, not open source. Provided as is, with no warranty and no liability.</p>
+    <p>This tool writes directly to disks as root and erases a Wyse 3040's internal eMMC. Use at your own risk.</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // Work out owner/repo from where this page is actually served, so links
+  // survive a rename or a fork, falling back to the canonical repo.
+  var owner = "The-Dorkknight", repo = "klipper-wyse3040-installer";
+  var host = location.hostname; // "<owner>.github.io"
+  var m = host.match(/^([^.]+)\.github\.io$/i);
+  if (m) owner = m[1];
+  var parts = location.pathname.split("/").filter(Boolean);
+  if (parts.length) repo = parts[0];
+
+  var repoUrl = "https://github.com/" + owner + "/" + repo;
+  document.getElementById("repo-link").href = repoUrl;
+  document.getElementById("releases-link").href = repoUrl + "/releases";
+  document.getElementById("readme-link").href = repoUrl + "#known-limitations";
+  document.getElementById("licence-link").href = repoUrl + "/blob/main/LICENSE.md";
+
+  // Hardware-photos section appears automatically once real photos exist —
+  // no broken-image icons if they don't.
+  var section = document.getElementById("hardware");
+  var imgs = section.querySelectorAll("img[data-src]");
+  var shown = false;
+  imgs.forEach(function (img) {
+    var probe = new Image();
+    probe.onload = function () {
+      img.src = img.getAttribute("data-src");
+      if (!shown) { section.style.display = "block"; shown = true; }
+    };
+    probe.onerror = function () { img.remove(); };
+    probe.src = img.getAttribute("data-src");
+  });
+})();
+</script>
+</body>
+</html>

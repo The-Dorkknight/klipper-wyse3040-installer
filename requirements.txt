@@ -1,0 +1,8 @@
+# wyse_injector.py uses only the Python standard library (including
+# tkinter, which ships with CPython but may need a separate OS package -
+# see README.md's "Building the ISO — GUI" section for the apt/dnf/pacman
+# command for your distro). There is nothing to pip install.
+#
+# Kept here, deliberately empty of entries, so project tooling that expects
+# a requirements.txt (and a human skimming the repo) both get a clear
+# answer rather than a missing file.

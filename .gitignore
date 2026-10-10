@@ -1,0 +1,21 @@
+# Generated secrets and build output — never commit these.
+credentials.txt
+preseed.cfg
+overlay/hostapd/hostapd.conf
+overlay/wpa_supplicant/wlan0.conf
+overlay/options.env
+overlay/klipplug/
+.build/
+*.iso
+
+# General hygiene
+*.log
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+*.jks
+*.keystore
+
+# a local copy of KlipPlug placed next to the tools for the KLIPPLUG option
+/*[Kk]lip[Pp]lug*

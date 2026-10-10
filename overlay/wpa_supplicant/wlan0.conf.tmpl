@@ -1,0 +1,13 @@
+# WIFI_MODE=station: join an existing router's WiFi instead of broadcasting
+# a hotspot. __STATION_SSID__ / __STATION_PASSWORD__ are filled in at build
+# time. Country code matters here too (it's what lets the radio see 5 GHz /
+# higher-power channels your router might be using).
+country=__COUNTRY__
+ctrl_interface=DIR=/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="__STATION_SSID__"
+    psk="__STATION_PASSWORD__"
+    key_mgmt=WPA-PSK
+}

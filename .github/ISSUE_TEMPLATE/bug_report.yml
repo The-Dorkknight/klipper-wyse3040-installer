@@ -1,0 +1,62 @@
+name: Bug report
+description: Something didn't work — build, boot, or a finished unit
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a report — this project is work in progress and
+        real-hardware reports are especially valuable. Please fill in as
+        much of this as you can.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The GUI's version (Extras tab → About), or the git commit/tag if you used setup.sh directly.
+      placeholder: e.g. 0.2.0-wip
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build-path
+    attributes:
+      label: Build path
+      options:
+        - GUI (wyse_injector.py)
+        - setup.sh, run locally
+        - GitHub Actions workflow
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Build PC platform
+      description: OS/distro you ran the GUI or setup.sh on.
+      placeholder: e.g. Linux Mint 22, Ubuntu 24.04 via WSL2
+    validations:
+      required: true
+
+  - type: input
+    id: wyse-variant
+    attributes:
+      label: Wyse 3040 variant / WiFi hardware (if the issue is about a unit)
+      placeholder: e.g. N10D, 8GB eMMC, TP-Link USB dongle / internal Marvell 8897 card
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output or diagnostics.txt
+      description: |
+        Build-time: the GUI's log window, or `wyse_injector.log` in your home folder.
+        Boot/unit-time: `http://<unit>/diagnostics.txt`, or SSH in and check `journalctl`.
+      render: shell

@@ -1,0 +1,98 @@
+#_preseed_V1
+#
+# Unattended Debian 12 install -> Klipper/Moonraker/Mainsail appliance
+# Target hardware: Dell Wyse 3040 (Atom x5-Z8350, 2GB RAM, 8GB eMMC)
+#
+# *** WARNING: this ERASES the internal eMMC without confirmation. ***
+# Only boot this on a unit you intend to wipe.
+
+### Localization
+d-i debian-installer/locale string en_US.UTF-8
+d-i keyboard-configuration/xkb-keymap select us
+
+### Network (DHCP during install — needed to fetch Klipper/Moonraker/apt packages)
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_hostname string klipper
+d-i netcfg/get_domain string local
+d-i netcfg/hostname string klipper
+d-i netcfg/wireless_wep string
+
+### Mirror
+d-i mirror/country string manual
+d-i mirror/http/hostname string deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+
+### Clock / time zone — adjust to your fleet's location if you want local time
+d-i clock-setup/utc boolean true
+d-i time/zone string Etc/UTC
+d-i clock-setup/ntp boolean true
+
+### Accounts
+# No root login; one sudo-capable "print" user runs the Klipper stack.
+# __PRINT_PASSWORD__ is filled in by setup.sh at build time (random unless
+# you set PRINT_PASSWORD yourself before running it).
+d-i passwd/root-login boolean false
+d-i passwd/make-user boolean true
+d-i passwd/user-fullname string Print User
+d-i passwd/username string print
+d-i passwd/user-password password __PRINT_PASSWORD__
+d-i passwd/user-password-again password __PRINT_PASSWORD__
+d-i user-setup/allow-password-weak boolean true
+d-i user-setup/encrypt-home boolean false
+
+### Partitioning — single ext4 partition, entire eMMC, no swap partition
+# (swap is handled by zram instead, to avoid wearing the eMMC — see overlay/systemd/zram-generator.conf)
+d-i partman-auto/method string regular
+d-i partman-auto/disk string /dev/mmcblk0
+d-i partman-auto/expert_recipe string                    \
+      klipper-root ::                                    \
+              500 10000 -1 ext4                           \
+                      $primary{ } $bootable{ }             \
+                      method{ format } format{ }           \
+                      use_filesystem{ } filesystem{ ext4 }  \
+                      mountpoint{ / }                        \
+              .
+d-i partman-auto/choose_recipe select klipper-root
+d-i partman-basicfilesystems/no_swap boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+# NOTE: /dev/mmcblk0 is the common eMMC device name, but some units enumerate
+# it as /dev/mmcblk1 (with mmcblk0 reserved for an SD slot, or vice versa).
+# If the install fails to find this disk, check `ls /dev/mmcblk*` at a
+# debug shell (Alt+F2 during install) and adjust the line above.
+
+### Base system / firmware
+# Debian 12 (bookworm) ships non-free-firmware in the default installer,
+# which is what lets the Marvell SDIO WiFi module (if present) actually load.
+d-i hw-detect/load_firmware boolean true
+
+### Package selection — no desktop, minimal base + what late_command needs
+tasksel tasksel/first multiselect
+d-i pkgsel/include string openssh-server sudo curl ca-certificates git
+d-i pkgsel/upgrade select full-upgrade
+d-i pkgsel/update-policy select none
+popularity-contest popularity-contest/participate boolean false
+
+### Bootloader
+# This is the important Wyse-3040-specific fix: its UEFI firmware does not
+# reliably honour normal NVRAM boot entries, so GRUB also has to be written
+# to the EFI "removable media" fallback path (\EFI\BOOT\BOOTX64.EFI) or the
+# unit will show no boot device after install.
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i grub-installer/force-efi-extra-removable boolean true
+d-i grub-installer/bootdev string default
+
+### Provisioning — copy the overlay onto the target and run late-command.sh
+# inside it via in-target (network + real /sys /dev are available there).
+d-i preseed/late_command string \
+  cp -a /cdrom/overlay /target/opt/klipper-setup ; \
+  in-target chmod +x /opt/klipper-setup/late-command.sh ; \
+  in-target /opt/klipper-setup/late-command.sh
+
+### Finish
+d-i finish-install/reboot_in_progress note

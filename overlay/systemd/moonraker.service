@@ -1,0 +1,16 @@
+[Unit]
+Description=API server for Klipper (Moonraker)
+Documentation=https://moonraker.readthedocs.io/
+After=network-online.target klipper.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=print
+ExecStart=/home/print/moonraker-env/bin/python /home/print/moonraker/moonraker/moonraker.py \
+    -d /home/print/printer_data
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

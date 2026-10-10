@@ -1,0 +1,17 @@
+[Unit]
+Description=Collect Boot Diagnostics for the Klipper appliance
+After=multi-user.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Wait before collecting, the same reasoning as pi_injector's Card
+# Inquisitor: reached this early, a crash-looping service (Moonraker on a
+# bad network, hostapd racing wlan0, etc.) hasn't failed more than once or
+# twice yet, and the report would look deceptively clean.
+ExecStartPre=-/bin/sleep 100
+ExecStart=/bin/bash /usr/local/bin/wyse-diag.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
