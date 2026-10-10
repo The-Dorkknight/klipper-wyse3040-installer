@@ -11,7 +11,7 @@ Builds a bootable USB installer that wipes a Wyse 3040's internal eMMC and
 leaves it running a headless Debian 12 appliance with Klipper + Moonraker +
 a web UI (Mainsail or Fluidd), WiFi (hotspot or station mode), and a working
 ethernet port. Designed for imaging a batch of units one at a time from the
-same USB stick.
+same USB stick .
 
 ## Screenshots
 
