@@ -7,6 +7,8 @@
 
 Source-available · Non-commercial — see [Licence](#licence) below.
 
+<img src="docs/images/wyse-pie.jpg" alt="A raspberry pie baked into the shape of a Wyse 3040, lattice crust on top, labelled Wyse-Pi" width="520">
+
 Builds a bootable USB installer that wipes a Wyse 3040's internal eMMC and
 leaves it running a headless Debian 12 appliance with Klipper + Moonraker +
 a web UI (Mainsail or Fluidd), WiFi (hotspot or station mode), and a working
@@ -286,6 +288,8 @@ Per unit:
 
 ## Troubleshooting
 
+## The KlipPlug option (experimental)
+
 | Symptom | Likely cause / fix |
 |---|---|
 | Unit boots to "no boot device found" | The Wyse 3040's UEFI firmware quirk — see "Boot quirk" above. Confirm `patch_boot_menu()` (GUI) or the boot-menu patch step (`setup.sh`) actually found `auto=true priority=critical preseed/file=/cdrom/preseed.cfg` — both print a warning at the end if they couldn't confirm it. |
@@ -296,8 +300,6 @@ Per unit:
 | GUI won't launch: `No module named tkinter` | Tkinter isn't installed — see the `apt`/`dnf`/`pacman` commands in the GUI section above. |
 | GUI build fails installing dependencies | It needs `apt` to auto-install `xorriso`/`p7zip-full`/`wget`/`rsync`/isolinux; on a non-apt distro, install the equivalents yourself first. |
 | GUI won't offer my USB drive on the Write tab | Only removable, correctly-sized (1–64 GB) drives are listed, and internal/mounted/critical disks never are. Click "Why isn't my drive listed?" in the app for the specific reason. |
-
-## The KlipPlug option (experimental)
 
 [KlipPlug](https://github.com/The-Dorkknight/klipplug) is a separate project
 by the same author: a plugin manager for Klipper that can run many OctoPrint
@@ -357,8 +359,6 @@ Known gaps, in rough order of how much they'd matter:
   `overlay/moonraker.conf` if that's too permissive for your network.
 
 ## Not an actual hardware photo
-
-<img src="docs/images/wyse-pie.jpg" alt="A raspberry pie baked into the shape of a Wyse 3040, lattice crust on top, labelled Wyse-Pi" width="520">
 
 To be clear: that's pastry, not a Wyse 3040 — a bit of fun, not a product
 shot. See [Known limitations](#known-limitations) above for what this
